@@ -1,117 +1,361 @@
 import 'package:flutter/material.dart';
 
+const firstColor = Color(0xFF282C30);
+const secondColor = Color(0xFF404347);
+const thirdColor = Color(0xFF646669);
+const fourthColor = Color(0xFFFF9F0A);
+
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutter Simple Calculator',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-        // This makes the visual density adapt to the platform that you run
-        // the app on. For desktop platforms, the controls will be smaller and
-        // closer together (more dense) than on mobile platforms.
+        primaryColor: firstColor,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
+  final listOperations = <int>[];
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  String strNumberResult = '0';
+  AnimationController controller;
+  Animation<double> animation;
+
+  @override
+  void initState() {
+    controller = AnimationController(
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+    );
+    animation = CurvedAnimation(
+      parent: controller,
+      curve: Curves.easeIn,
+    );
+    controller.forward(from: 1);
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: Text('Flutter Simple Calculator'),
+        elevation: 0,
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            _buildWidgetNumberResult(),
+            _buildWidgetNumberEditor(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWidgetNumberResult() {
+    return Expanded(
+      child: Container(
+        color: firstColor,
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            FadeTransition(
+              opacity: animation,
+              child: Text(
+                strNumberResult,
+                style: Theme.of(context).textTheme.headline3.copyWith(
+                      color: Colors.white,
+                    ),
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+
+  Widget _buildWidgetNumberEditor() {
+    return Expanded(
+      flex: 2,
+      child: Container(
+        child: Column(
+          children: [
+            _buildWidgetButtonRow1(),
+            _buildWidgetButtonRow2(),
+            _buildWidgetButtonRow3(),
+            _buildWidgetButtonRow4(),
+            _buildWidgetButtonRow5(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWidgetButtonRow5() {
+    return Expanded(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildWidgetButtonCalculator(
+            '0',
+            thirdColor,
+            () {
+              _updateStrNumberResult('0');
+            },
+            flex: 2,
+          ),
+          _buildWidgetButtonCalculator(
+            '.',
+            thirdColor,
+            () {
+              _updateStrNumberResult('.');
+            },
+          ),
+          _buildWidgetButtonCalculator(
+            '=',
+            fourthColor,
+            () {
+              // TODO: buat fitur tombol sama dengan
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWidgetButtonRow4() {
+    return Expanded(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildWidgetButtonCalculator(
+            '1',
+            thirdColor,
+            () {
+              _updateStrNumberResult('1');
+            },
+          ),
+          _buildWidgetButtonCalculator(
+            '2',
+            thirdColor,
+            () {
+              _updateStrNumberResult('2');
+            },
+          ),
+          _buildWidgetButtonCalculator(
+            '3',
+            thirdColor,
+            () {
+              _updateStrNumberResult('3');
+            },
+          ),
+          _buildWidgetButtonCalculator(
+            '+',
+            fourthColor,
+            () {
+              // TODO: buat fitur operasi penjumlahan
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWidgetButtonRow3() {
+    return Expanded(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildWidgetButtonCalculator(
+            '4',
+            thirdColor,
+            () {
+              _updateStrNumberResult('4');
+            },
+          ),
+          _buildWidgetButtonCalculator(
+            '5',
+            thirdColor,
+            () {
+              _updateStrNumberResult('5');
+            },
+          ),
+          _buildWidgetButtonCalculator(
+            '6',
+            thirdColor,
+            () {
+              _updateStrNumberResult('6');
+            },
+          ),
+          _buildWidgetButtonCalculator(
+            '-',
+            fourthColor,
+            () {
+              // TODO: buat fitur operasi pengurangan
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWidgetButtonRow2() {
+    return Expanded(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildWidgetButtonCalculator(
+            '7',
+            thirdColor,
+            () {
+              _updateStrNumberResult('7');
+            },
+          ),
+          _buildWidgetButtonCalculator(
+            '8',
+            thirdColor,
+            () {
+              _updateStrNumberResult('8');
+            },
+          ),
+          _buildWidgetButtonCalculator(
+            '9',
+            thirdColor,
+            () {
+              _updateStrNumberResult('9');
+            },
+          ),
+          _buildWidgetButtonCalculator(
+            'x',
+            fourthColor,
+            () {
+              // TODO: buat fitur operasi perkalian
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWidgetButtonRow1() {
+    return Expanded(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildWidgetButtonCalculator(
+            'AC',
+            secondColor,
+            () {
+              setState(() {
+                strNumberResult = '0';
+                controller.forward(from: 0);
+              });
+            },
+            flex: 2,
+          ),
+          _buildWidgetButtonCalculator(
+            '+/-',
+            secondColor,
+            () {
+              setState(() {
+                var numberResult = double.parse(strNumberResult.replaceAll(',', ''));
+                if (numberResult != 0) {
+                  if (strNumberResult.startsWith('-')) {
+                    strNumberResult = strNumberResult.replaceFirst('-', '');
+                  } else {
+                    strNumberResult = '-$strNumberResult';
+                  }
+                }
+              });
+            },
+          ),
+          _buildWidgetButtonCalculator(
+            '/',
+            fourthColor,
+            () {
+              // TODO: buat fitur operasi pembagian
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _updateStrNumberResult(String strNumber) {
+    setState(() {
+      if (strNumberResult.length == 1 && strNumberResult[0] == '0') {
+        if (strNumber == '0') {
+          return;
+        }
+        strNumberResult = strNumber;
+      } else {
+        strNumberResult += strNumber;
+      }
+      strNumberResult = _formatNumber(strNumberResult);
+    });
+  }
+
+  String _formatNumber(String strNumber) {
+    strNumber = strNumber.replaceAll(',', '');
+    bool isNegative = strNumber.startsWith('-');
+    if (isNegative) {
+      strNumber = strNumber.replaceFirst('-', '');
+    }
+    var len = strNumber.length;
+    var size = 3;
+    var chunks = <String>[];
+    for (var index = len; index > 0; index -= size) {
+      var start = index - size >= 0 ? index - size : 0;
+      chunks.add(strNumber.substring(start, index));
+    }
+    chunks = chunks.reversed.toList();
+    var result = chunks.join(',');
+    if (isNegative) {
+      result = '-$result';
+    }
+    return result;
+  }
+
+  Widget _buildWidgetButtonCalculator(String label, Color backgroundColor, Function onTap, {int flex = 1}) {
+    return Expanded(
+      flex: flex,
+      child: RaisedButton(
+        child: Text(
+          label,
+          style: Theme.of(context).textTheme.headline6.copyWith(
+                color: Colors.white,
+              ),
+        ),
+        onPressed: onTap,
+        color: backgroundColor,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(
+            width: 0.5,
+            color: firstColor,
+          ),
+        ),
+      ),
     );
   }
 }
