@@ -132,15 +132,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             () {
               _updateStrNumberResult('0');
             },
-            flex: 2,
-          ),
-          _buildWidgetButtonCalculator(
-            '.',
-            thirdColor,
-            () {
-              // TODO: buat fitur tombol koma
-              // _updateStrNumberResult('.');
-            },
+            flex: 3,
           ),
           _buildWidgetButtonCalculator(
             '=',
